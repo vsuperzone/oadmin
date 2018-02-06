@@ -3,6 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import axios from 'axios'
 import {
   Button,
   Container,
@@ -27,6 +28,14 @@ import {
   Dialog
 } from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
+
+// 图标
+import 'vue-awesome/icons'
+import Icon from 'vue-awesome/components/Icon'
+
+Vue.prototype.axios = axios
+
+Vue.component('icon', Icon)
 
 Vue.use(Button)
 Vue.use(Container)

@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Main from '@/components/Main'
+import Login from '@/components/Login'
 import articleList from '@/components/article/List'
 import articleAdd from '@/components/article/Add'
 
@@ -28,6 +29,11 @@ export default new Router({
           }
         }
       ]
+    },
+    {
+      path: '/login',
+      name: 'Login',
+      component: Login
     }
   ]
 })
