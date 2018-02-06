@@ -18,5 +18,6 @@ export default {
 <style>
 html, body {
   margin: 0;
+  background: #f6f6f6;
 }
 </style>

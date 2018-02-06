@@ -22,7 +22,9 @@ import {
   Select,
   Option,
   Checkbox,
-  CheckboxGroup
+  CheckboxGroup,
+  Card,
+  Dialog
 } from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 
@@ -46,6 +48,8 @@ Vue.use(Select)
 Vue.use(Option)
 Vue.use(Checkbox)
 Vue.use(CheckboxGroup)
+Vue.use(Card)
+Vue.use(Dialog)
 
 Vue.config.productionTip = false
 
