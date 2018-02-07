@@ -4,11 +4,11 @@
       <div class="submit">
         <div class="input-box">
           <icon name="user-o" scale="2"></icon>
-          <input type="text">
+          <input type="text" v-model="username">
         </div>
         <div class="input-box">
           <icon name="key" scale="2"></icon>
-          <input type="password">
+          <input type="password" v-model="password">
         </div>
         <el-button type="primary" @click="login()" style="width: 100%; margin-top: 20px;">登录后台</el-button>
       </div>
@@ -19,19 +19,32 @@
 <script>
 export default {
   name: 'Login',
+  data () {
+    return {
+      username: 'sKIJUWDXgN@qq.com',
+      password: 'secret'
+    }
+  },
   methods: {
     login: function () {
       var post = {
         'grant_type': 'password',
-        'client_id': 1,
-        'client_secret': 'bY3ATDgeGbhvzGf8x6XBIQEQEmR8Gl5gWwOkiGq8',
-        'username': 'passwoo@163.com',
-        'password': 'secret',
+        'client_id': 2,
+        'client_secret': 'oUQSDO4lbpfE2JJMqFKDgxLYJGiqkPCYBbeURqXH',
+        'username': this.username,
+        'password': this.password,
         'scope': '*'
       }
       this.axios.post('/server/oauth/token', post)
         .then(res => {
-          console.log(res)
+          localStorage.accessToken = res.data.access_token
+          this.$message({
+            message: '登录成功',
+            type: 'success'
+          })
+        })
+        .catch(e => {
+          this.$message.error('登录失败')
         })
     }
   }

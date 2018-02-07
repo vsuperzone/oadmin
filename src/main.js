@@ -3,7 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import axios from 'axios'
+import axios from './http'
 import {
   Button,
   Container,
@@ -25,7 +25,8 @@ import {
   Checkbox,
   CheckboxGroup,
   Card,
-  Dialog
+  Dialog,
+  Message
 } from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 
@@ -59,6 +60,7 @@ Vue.use(Checkbox)
 Vue.use(CheckboxGroup)
 Vue.use(Card)
 Vue.use(Dialog)
+Vue.prototype.$message = Message
 
 Vue.config.productionTip = false
 
