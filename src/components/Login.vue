@@ -21,7 +21,7 @@ export default {
   name: 'Login',
   data () {
     return {
-      username: 'sKIJUWDXgN@qq.com',
+      username: 'passwoo@163.com',
       password: 'secret'
     }
   },
@@ -30,7 +30,7 @@ export default {
       var post = {
         'grant_type': 'password',
         'client_id': 2,
-        'client_secret': 'oUQSDO4lbpfE2JJMqFKDgxLYJGiqkPCYBbeURqXH',
+        'client_secret': process.env.CLIENT_SECRET,
         'username': this.username,
         'password': this.password,
         'scope': '*'

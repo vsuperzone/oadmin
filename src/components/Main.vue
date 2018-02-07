@@ -28,7 +28,7 @@ export default {
 
 <style>
 .el-header {
-  background-color: #31a8e0;
+  background-color: rgb(64, 158, 255);
   line-height: 60px;
 }
 </style>

@@ -1,29 +1,54 @@
 <template>
   <div class="article-list">
     <!-- 分类 -->
-    <el-button type="primary" @click="dialogCateShow = true">分类管理</el-button>
+    <router-link :to="{name: 'article-add'}">
+      <el-button type="primary" @click="cate_show" size="small">添加文章</el-button>
+    </router-link>
+
+    <el-button type="primary" @click="cate_show" size="small">分类管理</el-button>
     <el-dialog title="分类管理" :visible.sync="dialogCateShow">
-      <el-button type="primary" @click="dialogAddCateShow = true">新增分类</el-button>
-      <el-dialog
-        width="30%"
-        title="新增分类"
-        :visible.sync="dialogAddCateShow"
-        append-to-body>
-        <el-input
-          placeholder="分类名称"
-          v-model="addCate.name"
-          clearable>
-        </el-input>
-        <el-input
-          placeholder="别名（英文）"
-          v-model="addCate.alias"
-          clearable>
-        </el-input>
+
+      <!-- 分类列表 -->
+      <el-table :data="cateData.data" style="width: 100%">
+        <el-table-column label="ID" width="50">
+          <template slot-scope="scope">
+            <span style="margin-left: 10px">{{ scope.row.id }}</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="分类名称">
+          <template slot-scope="scope">
+            <span style="margin-left: 10px">{{ scope.row.name }}</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="别名">
+          <template slot-scope="scope">
+            <span style="margin-left: 10px">{{ scope.row.alias }}</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <el-button type="primary" size="mini">修改</el-button>
+            <el-button type="danger" size="mini">删除</el-button>
+          </template>
+        </el-table-column>
+
+      </el-table>
+
+      <el-dialog width="30%" title="新增分类" :visible.sync="dialogAddCateShow" append-to-body>
+        <el-input placeholder="分类名称" v-model="addCate.name" clearable></el-input>
+        <el-input placeholder="别名（英文）" v-model="addCate.alias" clearable></el-input>
         <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogAddCateShow = false">取 消</el-button>
-          <el-button type="primary" @click="cate_add">确 定</el-button>
+          <el-button @click="dialogAddCateShow = false" size="small">取 消</el-button>
+          <el-button type="primary" @click="cate_add" size="small">确 定</el-button>
         </span>
       </el-dialog>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="dialogAddCateShow = true" size="small">新增分类</el-button>
+      </span>
     </el-dialog>
 
     <el-table
@@ -72,11 +97,22 @@ export default {
     return {
       dialogCateShow: false,
       dialogAddCateShow: false,
+      cateData: false,
       addCate: {},
       tableData: []
     }
   },
   methods: {
+    cate_show: function () {
+      this.dialogCateShow = true
+      if (this.cateData) {
+        return
+      }
+      this.axios.get('/server/api/category')
+        .then(res => {
+          this.cateData = res.data.data
+        })
+    },
     cate_add: function () {
       this.axios.post('/server/api/category/add', this.addCate)
         .then(res => {

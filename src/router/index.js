@@ -29,7 +29,7 @@ const router = new Router({
         },
         {
           path: 'article/add',
-          name: 'article-list-add',
+          name: 'article-add',
           meta: {
             requireAuth: true
           },

@@ -28,9 +28,14 @@
         <el-card class="box-card">
           <div slot="header" class="clearfix">
             <span>缩略图</span>
+            <el-button type="primary" @click="CropperDialog = true" size="mini" style="float: right;">裁剪</el-button>
           </div>
-          <img width="100%" ref="thumb" src="http://placeholder.qiniudn.com/640x300">
+          <div class="thumb" @click="CropperDialog = true">
+            <img width="100%" ref="thumb" src="http://placeholder.qiniudn.com/640x300">
+          </div>
+          <input type="file" ref="thumb-file" @change="thumb_add">
         </el-card>
+
         <!-- 文章分类 -->
         <el-card class="box-card">
           <div slot="header" class="clearfix">
@@ -38,10 +43,10 @@
           </div>
           <el-select v-model="addData.cat" style="width:100%" placeholder="选择分类">
             <el-option
-              v-for="item in cats"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
+              v-for="item in data.category.data"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
             </el-option>
           </el-select>
         </el-card>
@@ -59,15 +64,16 @@
       </el-aside>
     </el-container>
 
-    <el-dialog title="裁剪图片" :visible.sync="CropperDialog">
+    <!-- 裁剪缩略图 -->
+    <el-dialog title="裁剪缩略图" width="900px" :visible.sync="CropperDialog">
       <vueCropper
-        style="height: 500px;"
+        style="height: 400px"
         ref="cropper"
-        :img="example3.img"
-        :autoCrop="example3.autoCrop"
-        :autoCropWidth="example3.autoCropWidth"
-        :autoCropHeight="example3.autoCropHeight"
-        :fixedBox="example3.fixedBox"
+        :img="CropopOption.img"
+        :autoCrop="CropopOption.autoCrop"
+        :autoCropWidth="CropopOption.autoCropWidth"
+        :autoCropHeight="CropopOption.autoCropHeight"
+        :fixedBox="CropopOption.fixedBox"
       ></vueCropper>
       <div slot="footer" class="dialog-footer">
         <el-button @click="CropperDialog = false">取 消</el-button>
@@ -93,6 +99,7 @@ export default {
   },
   data () {
     return {
+      data: [],
       editorOption: {},
       content: 'sasasdfsd',
       cats: [{
@@ -113,18 +120,30 @@ export default {
         checked: [1],
         isIndeterminate: true
       },
-      example3: {
+      CropopOption: {
         img: 'https://o90cnn3g2.qnssl.com/0C3ABE8D05322EAC3120DDB11F9D1F72.png',
         autoCrop: true,
         autoCropWidth: 640,
-        autoCropHeight: 320,
+        autoCropHeight: 300,
         fixedBox: true
       },
-      CropperDialog: true,
+      CropperDialog: false,
       addData: {} // submit 数据
     }
   },
+  created: function () {
+    this.axios.get('/server/api/article/add')
+      .then(res => {
+        this.data = res.data.data
+      })
+      .catch(e => {
+        this.$message.error('获取数据失败')
+      })
+  },
   methods: {
+    thumb_add: function (f) {
+      console.log(f)
+    },
     preview: function () {
       this.$refs.cropper.getCropData((data) => {
         this.CropperDialog = false
@@ -170,5 +189,9 @@ export default {
 }
 .box-card {
   margin-bottom: 15px;
+}
+
+.thumb {
+  cursor: pointer;
 }
 </style>
