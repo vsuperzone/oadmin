@@ -31,19 +31,30 @@
 
           <el-table-column label="操作" width="170">
             <template slot-scope="scope">
-              <el-button type="primary" size="mini">修改</el-button>
-              <el-button type="danger" size="mini">删除</el-button>
+              <el-button type="primary" @click="cate_edit_btn(scope.row)" size="mini">修改</el-button>
+              <el-button type="danger" @click="cate_del_confirm(scope.row)" size="mini">删除</el-button>
             </template>
           </el-table-column>
 
         </el-table>
 
+        <!-- 添加分类 -->
         <el-dialog width="30%" title="新增分类" :visible.sync="dialogAddCateShow" append-to-body>
-          <el-input placeholder="分类名称" v-model="addCate.name" clearable></el-input>
-          <el-input placeholder="别名（英文）" v-model="addCate.alias" clearable></el-input>
+          <el-input placeholder="分类名称" style="margin-bottom: 15px;" v-model="cateAddData.name" clearable></el-input>
+          <el-input placeholder="别名（英文）" v-model="cateAddData.alias" clearable></el-input>
           <span slot="footer" class="dialog-footer">
             <el-button @click="dialogAddCateShow = false" size="small">取 消</el-button>
             <el-button type="primary" @click="cate_add" size="small">确 定</el-button>
+          </span>
+        </el-dialog>
+
+        <!-- 修改分类 -->
+        <el-dialog width="30%" title="修改分类" :visible.sync="dialogEditCateShow" append-to-body>
+          <el-input placeholder="分类名称" style="margin-bottom: 15px;" v-model="cateEditData.name" clearable></el-input>
+          <el-input placeholder="别名（英文）" v-model="cateEditData.alias" clearable></el-input>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogEditCateShow = false" size="small">取 消</el-button>
+            <el-button type="primary" @click="cate_edit" size="small">确 定</el-button>
           </span>
         </el-dialog>
 
@@ -97,10 +108,21 @@ export default {
       dialogCateShow: false,
       dialogAddCateShow: false,
       cateData: false,
-      addCate: {},
+      cateAddData: {},
       tableData: [],
+
+      // 修改分类
+      dialogEditCateShow: false,
+      cateEditData: {},
+
       cateShowLoad: false // 分类loading
     }
+  },
+  created: function () {
+    this.axios.get('/server/api/admin/article')
+      .then((res) => {
+        this.Floading.close()
+      })
   },
   methods: {
     cate_show: function () {
@@ -109,37 +131,77 @@ export default {
         return
       }
       this.cateShowLoad = true
-      this.axios.get('/server/api/category')
+      this.cate_get()
+    },
+    cate_get: function () { // 获取分类
+      this.axios.get('/server/api/admin/category')
         .then((res) => {
           this.cateShowLoad = false
           this.dialogCateShow = true
           this.cateData = res.data.data
         })
+        .catch((err) => {
+          this.errHandle(err)
+        })
     },
-    cate_add: function () {
-      this.axios.post('/server/api/category/add', this.addCate)
+
+    // 删除分类
+    cate_del_confirm: function (d) { // 删除提示
+      this.$confirm('此操作将永久删除'+ d.name +', 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.cate_del(d.id)
+      })
+    },
+    cate_del: function (id) {
+      this.axios.get('/server/api/admin/category/delete/' + id)
+        .then((res) => {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+          this.cate_get() // 重新加载分类
+        })
+        .catch((err) => {
+          this.errHandle(err)
+        })
+    },
+
+    // 修改分类
+    cate_edit_btn: function (d) {
+      this.cateEditData = d
+      this.dialogEditCateShow = true
+    },
+    cate_edit: function () {
+      this.axios.post('/server/api/admin/category/edit', this.cateEditData)
         .then(res => {
+          this.dialogEditCateShow = false
+          this.$message.success('修改成功')
+        })
+        .catch((err) => {
+          this.errHandle(err)
+        })
+    },
+
+    // 添加分类
+    cate_add: function () {
+      this.axios.post('/server/api/admin/category/add', this.cateAddData)
+        .then(res => {
+          this.dialogAddCateShow = false
           this.$message.success('添加成功')
+          this.cate_get() // 重新获取分类
         })
-        .catch(e => {
-          console.log(e)
-          this.$message.error('添加失败')
+        .catch((err) => {
+          this.errHandle(err)
         })
-      // this.dialogAddCateShow = false
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.header-handle {
-  margin-bottom: 20px;
-
-  .item {
-    margin-right: 10px;
-  }
-}
-
 .header-row-class-name {
   background-color: rgb(247, 247, 247);
 }

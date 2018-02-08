@@ -2,7 +2,6 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import App from './App'
-import router from './router'
 import axios from './http'
 import {
   Button,
@@ -27,6 +26,7 @@ import {
   Card,
   Dialog,
   Message,
+  MessageBox,
   Loading
 } from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
@@ -65,6 +65,7 @@ Vue.use(Loading.directive)
 
 Vue.prototype.$loading = Loading.service
 Vue.prototype.$message = Message
+Vue.prototype.$confirm = MessageBox.confirm
 
 Vue.prototype.errHandle = (err, msg = '') => {
   console.log(err)
@@ -80,6 +81,8 @@ Vue.prototype.errHandle = (err, msg = '') => {
   }
   Vue.prototype.$message.error(message)
 }
+
+import router from './router'
 
 Vue.config.productionTip = false
 

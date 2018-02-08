@@ -66,7 +66,12 @@ Vue.prototype.accessToken = accessToken
 // }
 
 router.beforeEach((to, from, next) => {
-  // Vue.$loading.service({ fullscreen: true })
+  Vue.prototype.Floading = Vue.prototype.$loading({
+    lock: true,
+    text: 'Loading',
+    background: 'rgba(255, 255, 255, 1)'
+  })
+
   // 登录后禁止访问
   if (to.meta.cannotlogin) {
     if (accessToken) {

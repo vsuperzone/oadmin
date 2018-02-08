@@ -135,19 +135,11 @@ export default {
   computed: {
   },
   created: function () {
-    const loading = this.$loading({
-      lock: true,
-      text: 'Loading',
-      background: 'rgba(255, 255, 255, 1)'
-    });
-    setTimeout(() => {
-      loading.close();
-    }, 2000);
-
-    this.axios.get('/server/api/article/add')
+    this.axios.get('/server/api/admin/article/add')
       .then((res) => {
         this.data = res.data.data
         this.group_ids_get(res.data.data.group)
+        this.Floading.close()
       })
       .catch((err) => {
         this.errHandle(err, '获取数据失败')

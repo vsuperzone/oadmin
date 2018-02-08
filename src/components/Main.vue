@@ -1,5 +1,5 @@
 <template>
-  <div class="admin">
+  <div class="admin" :v-show="Floading">
     <el-container style="height: 100%">
       <el-container>
         <el-aside width="230px">
@@ -27,7 +27,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
 .el-header {
   /*background-color: rgb(64, 158, 255);*/
   border-bottom: 1px solid #e6e9f0;
@@ -36,5 +36,14 @@ export default {
 
 .admin {
   height: 100%;
+}
+
+.admin /deep/ .header-handle {
+  margin-bottom: 20px;
+  display: flex;
+
+  .item {
+    margin-right: 10px;
+  }
 }
 </style>
