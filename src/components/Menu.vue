@@ -1,7 +1,7 @@
 <template>
   <el-menu
     default-active="2"
-    class="el-menu-vertical-demo"
+    class="nav"
     :router="true"
     @open="handleOpen"
     @close="handleClose">
@@ -27,7 +27,7 @@
       <i class="el-icon-menu"></i>
       <span slot="title">文章管理</span>
     </el-menu-item>
-    <el-menu-item index="3">
+    <el-menu-item index="3" :route="{name: 'user'}">
       <i class="el-icon-setting"></i>
       <span slot="title">会员管理</span>
     </el-menu-item>
@@ -47,9 +47,30 @@ export default {
 }
 </script>
 
-<style>
-.el-menu-vertical-demo:not(.el-menu--collapse) {
-  width: 200px;
-  min-height: 400px;
-}
+<style lang="scss" scoped>
+  .nav {
+    background-color: #f5f7fa;
+    height: 100%;
+  }
+  .is-active {
+
+  }
+  .el-menu-item {
+    color: #71747b;
+
+    i {
+      margin-right: 20px;
+    }
+  }
+  .el-menu-item.is-active {
+    background: #e1edfa;
+    color: #1983f1;
+    border-left: 3px solid #008afe;
+  }
+
+  .el-menu-item, .el-submenu__title {
+    height: 45px;
+    line-height: 45px;
+    margin-bottom: 5px;
+  }
 </style>

@@ -26,7 +26,8 @@ import {
   CheckboxGroup,
   Card,
   Dialog,
-  Message
+  Message,
+  Loading
 } from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 
@@ -60,7 +61,25 @@ Vue.use(Checkbox)
 Vue.use(CheckboxGroup)
 Vue.use(Card)
 Vue.use(Dialog)
+Vue.use(Loading.directive)
+
+Vue.prototype.$loading = Loading.service
 Vue.prototype.$message = Message
+
+Vue.prototype.errHandle = (err, msg = '') => {
+  console.log(err)
+  var message = ''
+  if (err.status === 400) {
+    message = err.data.message
+  } else {
+    message = '发生未知错误'
+  }
+
+  if (msg !== '') {
+    message += '，' + msg
+  }
+  Vue.prototype.$message.error(message)
+}
 
 Vue.config.productionTip = false
 

@@ -4,6 +4,7 @@ import Main from '@/components/Main'
 import Login from '@/components/Login'
 import articleList from '@/components/article/List'
 import articleAdd from '@/components/article/Add'
+import user from '@/components/User'
 
 Vue.use(Router)
 
@@ -36,6 +37,16 @@ const router = new Router({
           components: {
             main: articleAdd
           }
+        },
+        {
+          path: 'user',
+          name: 'user',
+          meta: {
+            requireAuth: true
+          },
+          components: {
+            main: user
+          }
         }
       ]
     },
@@ -55,6 +66,7 @@ Vue.prototype.accessToken = accessToken
 // }
 
 router.beforeEach((to, from, next) => {
+  // Vue.$loading.service({ fullscreen: true })
   // 登录后禁止访问
   if (to.meta.cannotlogin) {
     if (accessToken) {
