@@ -2,12 +2,16 @@
   <div class="article-add">
     <el-container>
       <el-main class="main">
+
+        <!-- 标题 -->
         <el-input
           placeholder="文章标题"
           style="margin-bottom: 15px;"
           v-model="addData.title"
           clearable>
         </el-input>
+
+        <!-- 摘要 -->
         <el-input
           type="textarea"
           :rows="2"
@@ -15,6 +19,23 @@
           placeholder="文章概要"
           v-model="addData.description">
         </el-input>
+
+        <!-- 图片上传 -->
+        <el-upload
+          action="https://upload.qiniup.com"
+          list-type="picture-card"
+          style="margin-bottom: 15px;"
+          :http-request="uploadHandle"
+          :on-remove="handleRemove"
+          :data="uploadToken"
+          multiple>
+          <i class="el-icon-plus"></i>
+        </el-upload>
+        <el-dialog :visible.sync="dialogVisible">
+          <img width="100%" :src="dialogImageUrl" alt="">
+        </el-dialog>
+
+        <!-- 正文 -->
         <quill-editor class="editor" v-model="addData.content"
           ref="myQuillEditor"
           :options="editorOption"
@@ -86,6 +107,8 @@
         <el-button type="primary" @click="preview">确 定</el-button>
       </div>
     </el-dialog>
+
+    <el-button @click="get_token">获取token</el-button>
   </div>
 </template>
 
@@ -96,6 +119,7 @@ import 'quill/dist/quill.bubble.css'
 
 import { quillEditor } from 'vue-quill-editor'
 import VueCropper from 'vue-cropper'
+import md5 from 'spark-md5'
 
 export default {
   name: 'article-list',
@@ -109,6 +133,11 @@ export default {
         category: []
       },
       editorOption: {},
+
+      // 文件上传
+      uploadToken: {
+        key: 'vsuper.jpg'
+      },
 
       // 用户组
       ugids: [],
@@ -146,6 +175,74 @@ export default {
       })
   },
   methods: {
+    // 获取上传token
+    uploadHandle: function (req) {
+      var file = req.file
+      var blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
+      var dir = this.Dateformat(new Date(), 'yyyy-MM') // 生成文件目录 格式："年-月"
+
+      // 计算文件md5
+      var reader = new FileReader()
+      var spark = new md5.ArrayBuffer()
+
+      var currentChunk = 0
+      var chunkSize = 2097152 // 分段计算 每段1M
+      var chunks = Math.ceil(file.size / chunkSize)
+
+      var loadNext = function () {
+        var start = currentChunk * chunkSize
+        var end = ((start + chunkSize) >= file.size) ? file.size : start + chunkSize
+
+        reader.readAsArrayBuffer(blobSlice.call(file, start, end))
+      }
+
+      reader.onloadend = (e) => {
+        spark.append(e.target.result) // Append array buffer
+        currentChunk++
+
+        if (currentChunk < chunks) {
+          loadNext()
+        } else {
+          var md5Val = spark.end()
+          var fileName = dir + '/' + md5Val // 获得文件路径及名称
+          fileName = file.name.replace(/.+?(\.[a-z]+$)/g, fileName + '$1') // 后缀
+          this.upload(file, fileName)
+        }
+      }
+
+      console.log(req)
+      var start = currentChunk * chunkSize
+      var end = ((start + chunkSize) >= file.size) ? file.size : start + chunkSize
+      reader.readAsArrayBuffer(blobSlice.call(file, start, end))
+    },
+
+    upload: function (file, name) {
+      // 获取token
+      this.axios.post('/server/api/admin/qiniu/upload_token', { name: name })
+        .then((res) => {
+          var token = res.data.data // 上传token
+          this.upload_submit(file, token, name)
+        })
+        .then((err) => {
+          this.errHandle(err)
+        })
+    },
+    upload_submit: function (file, token, key) {
+      let data = new FormData()
+      data.append('file', file)
+      data.append('token', token)
+      data.append('key', key)
+
+      let config = {
+        headers: {'Content-Type': 'multipart/form-data'}
+      }
+
+      this.axios.post('https://upload.qiniup.com', data, config)
+        .then((res) => {
+          console.log(res)
+        })
+    },
+
     // 发布
     release: function () {
       console.log(this.addData)
