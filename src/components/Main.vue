@@ -1,5 +1,5 @@
 <template>
-  <div class="admin" :v-show="Floading">
+  <div class="admin">
     <el-container style="height: 100%">
       <el-container>
         <el-aside width="230px">

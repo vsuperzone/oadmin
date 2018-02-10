@@ -37,6 +37,8 @@ import 'element-ui/lib/theme-chalk/index.css'
 import 'vue-awesome/icons'
 import Icon from 'vue-awesome/components/Icon'
 
+import Libs from './libs'
+
 Vue.prototype.axios = axios
 
 Vue.component('icon', Icon)
@@ -108,6 +110,9 @@ Vue.prototype.Dateformat = function (date, fmt) {
 }
 
 Vue.config.productionTip = false
+
+// 公共库
+Vue.prototype.$libs = Libs
 
 /* eslint-disable no-new */
 new Vue({

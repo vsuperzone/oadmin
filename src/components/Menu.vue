@@ -1,10 +1,6 @@
 <template>
-  <el-menu
-    default-active="2"
-    class="nav"
-    :router="true"
-    @open="handleOpen"
-    @close="handleClose">
+  <el-menu default-active="2" class="nav" :router="true" @open="handleOpen" @close="handleClose">
+    <router-link :to="{name: 'home'}" class="logo"></router-link>
     <el-submenu index="1">
       <template slot="title">
         <i class="el-icon-location"></i>
@@ -48,29 +44,40 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .nav {
-    background-color: #f5f7fa;
-    height: 100%;
-  }
-  .is-active {
+.logo {
+  display: block;
+  height: 90px;
+  background: url(../assets/long.png) center center no-repeat;
+  background-size: 50px;
+  border-bottom: 1px solid #e6e6e6;
+}
+.nav {
+  background-color: #f5f7fa;
+  height: 100%;
+}
+.is-active {
 
-  }
-  .el-menu-item {
-    color: #71747b;
+}
+.el-menu-item {
+  color: #71747b;
 
-    i {
-      margin-right: 20px;
-    }
+  i {
+    margin-right: 20px;
   }
-  .el-menu-item.is-active {
-    background: #e1edfa;
-    color: #1983f1;
-    border-left: 3px solid #008afe;
-  }
+}
+.el-menu-item.is-active {
+  background: #e1edfa;
+  color: #464646;
+  border-left: 3px solid #008afe;
+}
 
-  .el-menu-item, .el-submenu__title {
-    height: 45px;
-    line-height: 45px;
-    margin-bottom: 5px;
-  }
+.el-menu-item:focus, .el-menu-item:hover {
+  background: #e1edfa;
+}
+
+.el-menu-item, .el-submenu__title {
+  height: 45px;
+  line-height: 45px;
+  margin-bottom: 5px;
+}
 </style>

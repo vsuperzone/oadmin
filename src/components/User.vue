@@ -3,10 +3,10 @@
 
     <div class="header-handle">
       <!-- 会员组管理 -->
-      <el-button type="primary" class="item" :loading="groupShowLoad" @click="groupShowLoad = true" size="small">会员组</el-button>
+      <el-button type="primary" class="item" @click="groupDialog = true" size="small">会员组</el-button>
 
       <!-- 筛选会员组 -->
-      <el-select v-model="groupSelect" class="item" style="width: 120px;" size="small" clearable placeholder="请选择">
+      <el-select v-model="groupSelect" class="item" style="width: 120px;" size="small" clearable placeholder="筛选会员组">
         <el-option
           v-for="item in data.group"
           :key="item.id"
@@ -16,10 +16,10 @@
       </el-select>
     </div>
 
-    <el-dialog title="分类管理" :visible.sync="groupDialog">
+    <el-dialog title="会员组管理" :visible.sync="groupDialog">
 
       <!-- 会员组列表 -->
-      <el-table :data="groupData.data" style="width: 100%">
+      <el-table :data="data.group" style="width: 100%">
 
         <el-table-column label="ID" width="50">
           <template slot-scope="scope">
@@ -39,7 +39,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="操作">
+        <el-table-column label="操作" width="150">
           <template slot-scope="scope">
             <el-button type="primary" @click="group_edit_btn(scope.row)" size="mini">修改</el-button>
             <el-button type="danger" @click="group_del_confirm(scope.row)" size="mini">删除</el-button>
@@ -118,34 +118,29 @@ export default {
       groupDialog: false,
       groupAddDialog: false,
       groupAddData: {},
-      groupData: false,
-      data: [], // 会员列表
+      data: {}, // 会员列表
 
       // 修改会员组
       groupEditDialog: false,
       groupEditData: {},
 
-      groupSelect: '', // 删选会员组
-
-      groupShowLoad: false // 会员组loading
+      groupSelect: '' // 删选会员组
     }
   },
   created: function () {
     this.axios.get('/server/api/admin/member')
       .then((res) => {
         this.data = res.data.data
-        this.Floading.close()
       })
       .catch((err) => {
         this.errHandle(err, '获取数据失败')
       })
   },
   methods: {
-    group_get: function () {
+    group_get: function () { // 获取会员组
       this.axios.get('/server/api/admin/member/group')
         .then((res) => {
-          this.groupData = res.data
-          this.groupShowLoad = false
+          this.data.group = res.data.data
           this.groupDialog = true
         })
         .catch((err) => {

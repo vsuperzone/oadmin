@@ -21,34 +21,41 @@
         </el-input>
 
         <!-- 图片上传 -->
-        <el-upload
-          action="https://upload.qiniup.com"
-          list-type="picture-card"
-          style="margin-bottom: 15px;"
-          :http-request="uploadHandle"
-          :on-remove="handleRemove"
-          :data="uploadToken"
-          multiple>
-          <i class="el-icon-plus"></i>
-        </el-upload>
-        <el-dialog :visible.sync="dialogVisible">
-          <img width="100%" :src="dialogImageUrl" alt="">
-        </el-dialog>
+        <el-card class="box-card">
+          <div class="images">
+            <ul>
+              <li v-for="v in images" @click="image_insert(v)"><img :src="v"></li>
+              <el-upload
+                action="/server/api/admin/uploader"
+                list-type="picture-card"
+                style="width: 148px;"
+                :on-preview="test"
+                :headers="uploadHeader"
+                accept="image/png, image/jpeg, image/gif, image/jpg"
+                :on-success="upload_success"
+                :on-progress="progress"
+                :show-file-list="false"
+                multiple>
+                <i class="el-icon-upload"></i>
+              </el-upload>
+            </ul>
+          </div>
+        </el-card>
 
         <!-- 正文 -->
         <quill-editor class="editor" v-model="addData.content"
-          ref="myQuillEditor"
+          ref="editor"
           :options="editorOption"
           @blur="onEditorBlur($event)"
           @focus="onEditorFocus($event)"
           @ready="onEditorReady($event)">
         </quill-editor>
       </el-main>
-      <el-aside width="380px">
+      <el-aside width="380px" style="padding: 20px 20px 20px 0">
 
         <!-- 发布文章 -->
         <el-card class="box-card">
-          <el-button type="primary" @click="release" style="width: 100%;">发布文章</el-button>
+          <el-button type="primary" @click="release" width="200" style="width: 100%;">发布文章</el-button>
         </el-card>
 
         <!-- 缩略图 -->
@@ -58,7 +65,8 @@
             <el-button type="primary" @click="CropperDialog = true" size="mini" style="float: right;">裁剪</el-button>
           </div>
           <div class="thumb" @click="thumb_btn">
-            <img width="100%" ref="thumb" src="addData.thumb">
+            <img v-if="addData.thumb" width="100%" ref="thumb" :src="addData.thumb">
+            <img v-else src="@/assets/640x300.jpg" ref="thumb" width="100%">
           </div>
           <input type="file" style="display:none;" ref="thumbFile" accept="image/png, image/jpeg, image/gif, image/jpg" @change="thumb_add">
         </el-card>
@@ -68,7 +76,7 @@
           <div slot="header" class="clearfix">
             <span>文章分类</span>
           </div>
-          <el-select v-model="addData.cat" style="width:100%" placeholder="选择分类">
+          <el-select v-model="addData.category_id" style="width:100%" placeholder="选择分类">
             <el-option
               v-for="item in data.category.data"
               :key="item.id"
@@ -103,12 +111,10 @@
         :fixedBox="CropopOption.fixedBox"
       ></vueCropper>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="CropperDialog = false">取 消</el-button>
-        <el-button type="primary" @click="preview">确 定</el-button>
+        <el-button @click="CropperDialog = false" size="small">取 消</el-button>
+        <el-button type="primary" @click="thumb_upload" size="small">确 定</el-button>
       </div>
     </el-dialog>
-
-    <el-button @click="get_token">获取token</el-button>
   </div>
 </template>
 
@@ -116,7 +122,7 @@
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
-
+import Quill from 'quill'
 import { quillEditor } from 'vue-quill-editor'
 import VueCropper from 'vue-cropper'
 import md5 from 'spark-md5'
@@ -135,15 +141,18 @@ export default {
       editorOption: {},
 
       // 文件上传
+      uploadHeader: {
+        Authorization: `Bearer ${this.accessToken}`
+      },
       uploadToken: {
         key: 'vsuper.jpg'
       },
+      images: [],
 
       // 用户组
       ugids: [],
       ugOption: { // 阅读权限
         checkAll: false,
-        checked: [1],
         isIndeterminate: true
       },
 
@@ -168,13 +177,28 @@ export default {
       .then((res) => {
         this.data = res.data.data
         this.group_ids_get(res.data.data.group)
-        this.Floading.close()
       })
       .catch((err) => {
         this.errHandle(err, '获取数据失败')
       })
   },
   methods: {
+    image_insert: function (src) {
+      var sel = this.$refs.editor.quill.getSelection()
+      var index = sel !== null ? sel.index : 0
+      this.$refs.editor.quill.insertEmbed(index, 'image', src)
+    },
+    progress: function (event, file, fileList) {
+      console.log(event)
+      console.log(file)
+      console.log(fileList)
+    },
+    upload_success: function (resp, file, fileList) {
+      this.images.push(resp.data)
+    },
+    test: function () {
+      alert('sdfsdf')
+    },
     // 获取上传token
     uploadHandle: function (req) {
       var file = req.file
@@ -245,7 +269,13 @@ export default {
 
     // 发布
     release: function () {
-      console.log(this.addData)
+      this.axios.post('/server/api/admin/article/add', this.addData)
+        .then((res) => {
+          this.$message.success('添加成功')
+        })
+        .catch((err) => {
+          this.errHandle(err)
+        })
     },
     // 获取会员组id列表
     group_ids_get: function (group) {
@@ -255,22 +285,43 @@ export default {
       }
       this.ugids = ids
     },
+
+    // 缩略图
     thumb_btn: function () {
       this.$refs.thumbFile.click()
     },
     thumb_add: function (e) {
       var file = e.target.files[0]
-      var reader = new FileReader()
-      reader.onload = (e) => {
-        this.CropopOption.img = e.target.result
-      }
-      reader.readAsDataURL(file)
+      var img = new Image()
+      var url = window.URL.createObjectURL(file) // 得到bolb对象路径，可当成普通的文件路径一样使用，赋值给src;
+      this.CropopOption.img = url
       this.CropperDialog = true
+    },
+    thumb_upload: function () { // 上传缩略图
+      this.$refs.cropper.getCropData((data) => {
+        var blob = this.$libs.dataURLtoBlob(data)
+        var src = window.URL.createObjectURL(blob)
+        
+        let postData = new FormData()
+        postData.append('file', blob)
+
+        this.axios.post('/server/api/admin/uploader', postData)
+          .then((res) => {
+            this.CropperDialog = false
+            this.addData.thumb = res.data.data
+          })
+          .catch((err) => {
+            this.errHandle(err)
+          })
+      })
     },
     preview: function () {
       this.$refs.cropper.getCropData((data) => {
+        var blob = this.$libs.dataURLtoBlob(data)
+        var src = window.URL.createObjectURL(blob)
+        console.log(src)
         this.CropperDialog = false
-        this.$refs.thumb.src = data
+        this.$refs.thumb.src = src
       })
     },
     handleCheckAllChange (val) {
@@ -316,5 +367,32 @@ export default {
 
 .thumb {
   cursor: pointer;
+}
+
+.images {
+  ul {
+    display: flex;
+
+  }
+
+  ul li {
+    width: 148px;
+    height: 148px;
+    padding: 8px;
+    border: 1px solid #dcdfe6;
+    box-sizing: border-box;
+    margin-right: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    background-color: #f6f6f6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+  }
 }
 </style>

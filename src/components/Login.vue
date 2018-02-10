@@ -1,6 +1,7 @@
 <template>
   <div class="login">
     <div class="box">
+      <div class="logo"></div>
       <div class="submit">
         <div class="input-box">
           <icon name="user-o" scale="2"></icon>
@@ -65,10 +66,17 @@ export default {
     height: 590px;
     background: #fff;
     border-radius: 15px;
-    box-shaodw: 0 0 20px #000;
+    box-shadow: 0 0 15px #26a09a;
+    background: #fff url(../assets/login_bg.png) center bottom no-repeat;
+
+    .logo {
+      height: 100px;
+      margin-top: 70px;
+      background: url(../assets/long.png) center center no-repeat;
+    }
 
     .submit {
-      margin-top: 150px;
+      margin-top: 50px;
       padding: 0 30px;
     }
 

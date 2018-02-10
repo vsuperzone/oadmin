@@ -65,27 +65,31 @@
     </div>
 
     <!-- 文章列表 -->
-    <el-table :data="tableData" class="list" style="width: 100%">
-      <el-table-column label="日期" width="180">
+    <el-table :data="data.articles.data" class="list" style="width: 100%">
+      <el-table-column
+        type="selection"
+        width="55">
+      </el-table-column>
+      <el-table-column label="ID" width="50">
         <template slot-scope="scope">
-          <i class="el-icon-time"></i>
-          <span style="margin-left: 10px">{{ scope.row.date }}</span>
+          <span>{{ scope.row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column
-        label="姓名"
-        width="180">
+      <el-table-column label="标题">
         <template slot-scope="scope">
           <el-popover trigger="hover" placement="top">
-            <p>姓名: {{ scope.row.name }}</p>
-            <p>住址: {{ scope.row.address }}</p>
-            <div slot="reference" class="name-wrapper">
-              <el-tag size="medium">{{ scope.row.name }}</el-tag>
-            </div>
+            <span>{{ scope.row.title }}</span>
           </el-popover>
         </template>
       </el-table-column>
-      <el-table-column label="操作">
+      <el-table-column label="更新时间" width="180">
+        <template slot-scope="scope">
+          <el-popover trigger="hover" placement="top">
+            <span>{{ scope.row.updated_at }}</span>
+          </el-popover>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="180">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -93,7 +97,7 @@
           <el-button
             size="mini"
             type="danger"
-            @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+            @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -105,6 +109,8 @@ export default {
   name: 'article-list',
   data () {
     return {
+      loading: null,
+      data: {},
       dialogCateShow: false,
       dialogAddCateShow: false,
       cateData: false,
@@ -121,10 +127,33 @@ export default {
   created: function () {
     this.axios.get('/server/api/admin/article')
       .then((res) => {
-        this.Floading.close()
+        this.data = res.data.data
+      })
+      .catch((err) => {
+        this.errHandle(err, '数据获取失败，请刷新重试')
       })
   },
   methods: {
+    // 文章操作
+    handleEdit: function () { // 修改文章
+
+    },
+    handleDelete: function (d) { // 删除文章
+      this.$confirm('此操作将永久删除' + d.title + ', 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.axios.get('/server/api/admin/article/delete/' + d.id)
+          .then((res) => {
+            this.$message.success('删除成功')
+          })
+          .catch((err) => {
+            this.errHandle(err)
+          })
+      })
+    },
+
     cate_show: function () {
       if (this.cateData) {
         this.dialogCateShow = true

@@ -29,4 +29,9 @@ th {
   color: #5e6166;
   background-color: #f7f7f7 !important;
 }
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
 </style>
