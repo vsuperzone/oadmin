@@ -29,6 +29,7 @@ import {
   Message,
   MessageBox,
   Loading,
+  Pagination,
   Upload
 } from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
@@ -36,8 +37,6 @@ import 'element-ui/lib/theme-chalk/index.css'
 // 图标
 import 'vue-awesome/icons'
 import Icon from 'vue-awesome/components/Icon'
-
-import Libs from './libs'
 
 Vue.prototype.axios = axios
 
@@ -65,6 +64,7 @@ Vue.use(Checkbox)
 Vue.use(CheckboxGroup)
 Vue.use(Card)
 Vue.use(Dialog)
+Vue.use(Pagination)
 Vue.use(Upload)
 Vue.use(Loading.directive)
 
@@ -87,32 +87,7 @@ Vue.prototype.errHandle = (err, msg = '') => {
   Vue.prototype.$message.error(message)
 }
 
-Vue.prototype.Dateformat = function (date, fmt) {
-  var o = {
-    'M+': date.getMonth() + 1, // 月份
-    'd+': date.getDate(), // 日
-    'h+': date.getHours(), // 小时
-    'm+': date.getMinutes(), // 分
-    's+': date.getSeconds(), // 秒
-    'q+': Math.floor((date.getMonth() + 3) / 3), // 季度
-    'S': date.getMilliseconds() // 毫秒
-  }
-
-  if (/(y+)/.test(fmt)) {
-    fmt = fmt.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length))
-  }
-  for (var k in o) {
-    if (new RegExp('(' + k + ')').test(fmt)) {
-      fmt = fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (('00' + o[k]).substr(('' + o[k]).length)))
-    }
-  }
-  return fmt
-}
-
 Vue.config.productionTip = false
-
-// 公共库
-Vue.prototype.$libs = Libs
 
 /* eslint-disable no-new */
 new Vue({

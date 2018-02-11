@@ -38,12 +38,21 @@ export default {
   height: 100%;
 }
 
-.admin /deep/ .header-handle {
-  margin-bottom: 20px;
-  display: flex;
+.admin /deep/ {
+  .header-handle {
+    margin-bottom: 20px;
+    display: flex;
 
-  .item {
-    margin-right: 10px;
+    .item {
+      margin-right: 10px;
+    }
+  }
+
+  // 表格底部样式
+  .table-footer {
+    display: flex;
+    margin: 20px 0;
+    justify-content: space-between;
   }
 }
 </style>

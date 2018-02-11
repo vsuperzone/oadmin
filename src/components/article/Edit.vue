@@ -7,7 +7,7 @@
         <el-input
           placeholder="文章标题"
           style="margin-bottom: 15px;"
-          v-model="addData.title"
+          v-model="editData.title"
           clearable>
         </el-input>
 
@@ -17,7 +17,7 @@
           :rows="2"
           style="margin-bottom: 15px;"
           placeholder="文章概要"
-          v-model="addData.description">
+          v-model="editData.description">
         </el-input>
 
         <!-- 图片上传 -->
@@ -41,7 +41,7 @@
         </el-card>
 
         <!-- 正文 -->
-        <quill-editor class="editor" placeholder="文章标题" v-model="addData.content"
+        <quill-editor class="editor" placeholder="文章标题" v-model="editData.content"
           ref="editor"
           :options="editorOption"
           @blur="onEditorBlur($event)"
@@ -53,7 +53,7 @@
 
         <!-- 发布文章 -->
         <el-card class="box-card">
-          <el-button type="primary" @click="release" width="200" style="width: 100%;">发布文章</el-button>
+          <el-button type="primary" @click="release" width="200" style="width: 100%;">提交修改</el-button>
         </el-card>
 
         <!-- 缩略图 -->
@@ -63,7 +63,7 @@
             <el-button type="primary" @click="CropperDialog = true" size="mini" style="float: right;">裁剪</el-button>
           </div>
           <div class="thumb" @click="thumb_btn">
-            <img v-if="addData.thumb" width="100%" ref="thumb" :src="addData.thumb">
+            <img v-if="editData.thumb" width="100%" ref="thumb" :src="editData.thumb">
             <img v-else src="@/assets/640x300.jpg" ref="thumb" width="100%">
           </div>
           <input type="file" style="display:none;" ref="thumbFile" accept="image/png, image/jpeg, image/gif, image/jpg" @change="thumb_add">
@@ -74,9 +74,9 @@
           <div slot="header" class="clearfix">
             <span>文章分类</span>
           </div>
-          <el-select v-model="addData.category_id" style="width:100%" placeholder="选择分类">
+          <el-select v-model="editData.category_id" style="width:100%" placeholder="选择分类">
             <el-option
-              v-for="item in data.category.data"
+              v-for="item in data.category"
               :key="item.id"
               :label="item.name"
               :value="item.id">
@@ -90,7 +90,7 @@
             <span>阅读权限</span>
             <el-checkbox style="float: right;" :indeterminate="ugOption.isIndeterminate" v-model="ugOption.checkAll" @change="handleCheckAllChange">全选</el-checkbox>
           </div>
-          <el-checkbox-group v-model="ugOption.checked" @change="handleCheckedChange">
+          <el-checkbox-group v-model="editData.permission" @change="handleCheckedChange">
             <el-checkbox v-for="group in data.group" :label="group.id" :key="group.id">{{group.name}}</el-checkbox>
           </el-checkbox-group>
         </el-card>
@@ -132,6 +132,7 @@ export default {
   },
   data () {
     return {
+      id: this.$route.params.id,
       data: {
         category: []
       },
@@ -167,15 +168,16 @@ export default {
       CropperDialog: false,
 
       thumbOriginal: false, // 缩略图原图
-      addData: {} // submit 数据
+      editData: {} // submit 数据
     }
   },
   computed: {
   },
   created: function () {
-    this.axios.get('/server/api/admin/article/add')
+    this.axios.get('/server/api/admin/article/edit/' + this.id)
       .then((res) => {
         this.data = res.data.data
+        this.editData = res.data.data.article
         this.group_ids_get(res.data.data.group)
       })
       .catch((err) => {
@@ -261,9 +263,9 @@ export default {
 
     // 发布
     release: function () {
-      this.axios.post('/server/api/admin/article/add', this.addData)
+      this.axios.post('/server/api/admin/article/edit/' + this.id, this.editData)
         .then((res) => {
-          this.$message.success('添加成功')
+          this.$message.success('修改成功')
         })
         .catch((err) => {
           this.errHandle(err)
@@ -299,7 +301,7 @@ export default {
         this.axios.post('/server/api/admin/uploader', postData)
           .then((res) => {
             this.CropperDialog = false
-            this.addData.thumb = res.data.data
+            this.editData.thumb = res.data.data
           })
           .catch((err) => {
             this.errHandle(err)
@@ -317,7 +319,7 @@ export default {
     },
     handleCheckAllChange (val) {
       var checked = val ? this.ugids : []
-      this.ugOption.checked = this.addData.permission = checked
+      this.editData.permission = this.editData.permission = checked
       this.ugOption.isIndeterminate = false
     },
     handleCheckedChange (value) {

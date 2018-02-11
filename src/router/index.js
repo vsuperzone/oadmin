@@ -4,6 +4,7 @@ import Main from '@/components/Main'
 import Login from '@/components/Login'
 import articleList from '@/components/article/List'
 import articleAdd from '@/components/article/Add'
+import articleEdit from '@/components/article/Edit'
 import user from '@/components/User'
 
 Vue.use(Router)
@@ -12,7 +13,7 @@ const router = new Router({
   routes: [
     {
       path: '/',
-      name: 'main',
+      name: 'home',
       component: Main,
       meta: {
         requireAuth: true
@@ -29,6 +30,16 @@ const router = new Router({
           }
         },
         {
+          path: 'article/page/:page',
+          name: 'article-page',
+          meta: {
+            requireAuth: true
+          },
+          components: {
+            main: articleList
+          }
+        },
+        {
           path: 'article/add',
           name: 'article-add',
           meta: {
@@ -36,6 +47,16 @@ const router = new Router({
           },
           components: {
             main: articleAdd
+          }
+        },
+        {
+          path: 'article/:id',
+          name: 'article-edit',
+          meta: {
+            requireAuth: true
+          },
+          components: {
+            main: articleEdit
           }
         },
         {

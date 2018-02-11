@@ -65,7 +65,7 @@
     </div>
 
     <!-- 文章列表 -->
-    <el-table :data="data.articles.data" class="list" style="width: 100%">
+    <el-table :data="data.article.data" class="list" style="width: 100%">
       <el-table-column
         type="selection"
         width="55">
@@ -77,23 +77,19 @@
       </el-table-column>
       <el-table-column label="标题">
         <template slot-scope="scope">
-          <el-popover trigger="hover" placement="top">
             <span>{{ scope.row.title }}</span>
-          </el-popover>
         </template>
       </el-table-column>
       <el-table-column label="更新时间" width="180">
         <template slot-scope="scope">
-          <el-popover trigger="hover" placement="top">
             <span>{{ scope.row.updated_at }}</span>
-          </el-popover>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="180">
         <template slot-scope="scope">
-          <el-button
-            size="mini"
-            @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+          <router-link :to="{name: 'article-edit', params: { id: scope.row.id }}">
+            <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+          </router-link>
           <el-button
             size="mini"
             type="danger"
@@ -101,6 +97,17 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <div class="table-footer">
+      <div class="handles"></div>
+      <el-pagination
+        background
+        layout="prev, pager, next"
+        :current-page="parseInt($route.params.page)"
+        @current-change="page_to"
+        :total="data.article.total">
+      </el-pagination>
+    </div>
   </div>
 </template>
 
@@ -110,7 +117,9 @@ export default {
   data () {
     return {
       loading: null,
-      data: {},
+      data: {
+        article: {}
+      },
       dialogCateShow: false,
       dialogAddCateShow: false,
       cateData: false,
@@ -133,7 +142,42 @@ export default {
         this.errHandle(err, '数据获取失败，请刷新重试')
       })
   },
+  // beforeRouteUpdate: function () {
+  //   // console.log(this.$route.params)
+  //   const params = this.$route.params
+  //   console.log(params)
+  //   // this.axios.get('/server/api/admin/article/list', params)
+  //   //   .then((res) => {
+  //   //     // console.log(res.data.data)
+  //   //     // this.data.article = res.data.data
+  //   //   })
+  //   //   .catch((err) => {
+  //   //     this.errHandle(err, '数据获取失败，请刷新重试')
+  //   //   })
+  // },
+  watch: {
+    '$route': function (to) {
+      const page = to.params.page
+      var params = {
+        params: { page: page }
+      }
+      this.axios.get('/server/api/admin/article/list', params)
+        .then((res) => {
+          // console.log(res.data.data)
+          this.data.article = res.data.data
+        })
+        .catch((err) => {
+          this.errHandle(err, '数据获取失败，请刷新重试')
+        })
+    }
+  },
   methods: {
+    page_to: function (page) {
+      this.$router.push({
+        name: 'article-page',
+        params: { page: page }
+      })
+    },
     // 文章操作
     handleEdit: function () { // 修改文章
 
