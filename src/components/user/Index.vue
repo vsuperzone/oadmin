@@ -5,15 +5,32 @@
       <!-- 会员组管理 -->
       <el-button type="primary" class="item" @click="groupDialog = true" size="small">会员组</el-button>
 
-      <!-- 筛选会员组 -->
-      <el-select v-model="groupSelect" class="item" style="width: 120px;" size="small" clearable placeholder="筛选会员组">
+      <!-- 地区筛选 -->
+      <el-select v-model="adressFilter.province" @change="province_select" class="item" placeholder="请选择" size="small">
         <el-option
-          v-for="item in data.group"
-          :key="item.id"
+          v-for="item in addressData.province"
+          :key="item.value"
           :label="item.name"
-          :value="item.id">
+          :value="item.value">
         </el-option>
       </el-select>
+      <el-select v-if="city" v-model="adressFilter.city" class="item" @change="city_select" placeholder="请选择" size="small" clearable>
+        <el-option
+          v-for="item in city"
+          :key="item.value"
+          :label="item.name"
+          :value="item.value">
+        </el-option>
+      </el-select>
+      <el-select v-if="region" v-model="adressFilter.region" class="item" @change="region_select" placeholder="请选择" size="small" clearable>
+        <el-option
+          v-for="item in region"
+          :key="item.value"
+          :label="item.name"
+          :value="item.value">
+        </el-option>
+      </el-select>
+      <el-button type="primary" class="item" @click="member_get" size="small">确认</el-button>
     </div>
 
     <el-dialog title="会员组管理" :visible.sync="groupDialog">
@@ -75,35 +92,37 @@
     </el-dialog>
 
     <!-- 会员列表 -->
-    <el-table :data="data.user" class="list" style="width: 100%">
-      <el-table-column label="日期" width="180">
+    <el-table :data="data.member.data" class="list" style="width: 100%">
+      <el-table-column label="姓名" width="80">
         <template slot-scope="scope">
-          <i class="el-icon-time"></i>
-          <span style="margin-left: 10px">{{ scope.row.date }}</span>
+          <span>{{ scope.row.name }}</span>
         </template>
       </el-table-column>
       <el-table-column
-        label="姓名"
-        width="180">
+        label="性别"
+        width="70">
         <template slot-scope="scope">
-          <el-popover trigger="hover" placement="top">
-            <p>姓名: {{ scope.row.name }}</p>
-            <p>住址: {{ scope.row.address }}</p>
-            <div slot="reference" class="name-wrapper">
-              <el-tag size="medium">{{ scope.row.name }}</el-tag>
-            </div>
-          </el-popover>
+          <span>{{ sex[scope.row.sex] }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作">
+      <el-table-column label="电话" width="120">
         <template slot-scope="scope">
-          <el-button
-            size="mini"
-            @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-          <el-button
-            size="mini"
-            type="danger"
-            @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+          <span>{{ scope.row.tel }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="身份证号" width="160">
+        <template slot-scope="scope">
+          <span>{{ scope.row.certnumber }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="地区">
+        <template slot-scope="scope">
+          <span>{{ region_change(scope.row.region) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="具体地址">
+        <template slot-scope="scope">
+          <span>{{ scope.row.adress }}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -111,6 +130,8 @@
 </template>
 
 <script>
+import ChinaAddressV4Data from '@/datas/china_address_v4.json'
+
 export default {
   name: 'User',
   data () {
@@ -118,7 +139,17 @@ export default {
       groupDialog: false,
       groupAddDialog: false,
       groupAddData: {},
-      data: {}, // 会员列表
+      data: {
+        member: {}
+      }, // 会员列表
+
+      sex: ['女', '男'],
+      adressFilter: {
+        province: null,
+        city: null,
+        region: null
+      },
+      addressData: [],
 
       // 修改会员组
       groupEditDialog: false,
@@ -127,8 +158,36 @@ export default {
       groupSelect: '' // 删选会员组
     }
   },
+  computed: {
+    city: function () {
+      var province = this.adressFilter.province
+      return this.addressData.region[province]
+    },
+    region: function () {
+      var city = this.adressFilter.city
+      return this.addressData.region[city]
+    }
+  },
   created: function () {
-    this.axios.get('/server/api/admin/member')
+    this.region_init() // 初始化地区数据
+
+    // 获取用户地区筛选数据
+    this.adressFilter.province = window.localStorage.province
+    this.adressFilter.city = window.localStorage.city
+    this.adressFilter.region = window.localStorage.region
+
+    var params = {}
+    if (this.adressFilter.region) {
+      params.region = this.adressFilter.region
+    } else if (this.adressFilter.city) {
+      params.city = this.adressFilter.city
+    } else if (this.adressFilter.province) {
+      params.province = this.adressFilter.province
+    }
+
+    this.params = params
+
+    this.axios.get('/server/api/admin/member', { params: params })
       .then((res) => {
         this.data = res.data.data
       })
@@ -137,6 +196,93 @@ export default {
       })
   },
   methods: {
+    member_get: function () {
+      var params = {}
+      if (this.adressFilter.region) {
+        params.region = this.adressFilter.region
+      } else if (this.adressFilter.city) {
+        params.city = this.adressFilter.city
+      } else if (this.adressFilter.province) {
+        params.province = this.adressFilter.province
+      }
+
+      this.axios.get('/server/api/admin/member/list', { params })
+        .then((res) => {
+          this.data.member = res.data.data
+        })
+        .catch((err) => {
+          this.errHandle(err, '获取数据失败')
+        })
+    },
+    province_select: function (val) { // 选中省
+      if (window.localStorage.province !== val) {
+        this.adressFilter.city = null
+        this.adressFilter.region = null
+      }
+      window.localStorage.province = val
+    },
+    city_select: function (val) { // 选中城市
+      if (window.localStorage.city !== val) {
+        this.adressFilter.region = null
+      }
+      window.localStorage.city = val
+    },
+    region_select: function (val) {
+      this.adressFilter.region = window.localStorage.region = val
+    },
+    // 获取省数据
+    province_data: function () {
+      var province = []
+      for (var v of ChinaAddressV4Data) {
+        if (typeof v.parent === 'undefined') {
+          province.push(v)
+        }
+      }
+      return province
+    },
+
+    // 初始化地区数据
+    region_init: function () {
+      this.addressData.province = []
+      this.addressData.region = {}
+      for (var v of ChinaAddressV4Data) {
+        if (v.parent) {
+          if (typeof this.addressData.region[v.parent] === 'undefined') {
+            this.addressData.region[v.parent] = []
+          }
+          this.addressData.region[v.parent].push(v)
+        } else {
+          this.addressData.province.push(v)
+        }
+      }
+    },
+    region_change: function (code) {
+      // 省
+      const province = parseInt(code / 10000) * 10000 + '' // 省
+      const city = parseInt(code / 100) * 100 + '' // 市
+      code = code + ''
+      const fullcode = [province, city, code]
+
+      var data = ''
+      for (var v of fullcode) {
+        if (v === fullcode[0]) {
+          data += this.region_find(v)
+        } else {
+          data += ' ' + this.region_find(v)
+        }
+      }
+      return data
+    },
+    region_find: function (code) {
+      for (var v of ChinaAddressV4Data) {
+        if (v.value === code) {
+          return v.name
+        }
+      }
+
+      return null
+    },
+
     group_get: function () { // 获取会员组
       this.axios.get('/server/api/admin/member/group')
         .then((res) => {

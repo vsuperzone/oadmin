@@ -39,10 +39,12 @@ export default {
       this.axios.post('/server/oauth/token', post)
         .then(res => {
           localStorage.accessToken = res.data.access_token
+          this.setToken(res.data.access_token)
           this.$message({
             message: '登录成功',
             type: 'success'
           })
+          this.$router.push({ name: 'home' })
         })
         .catch(e => {
           this.$message.error('登录失败')

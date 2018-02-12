@@ -71,6 +71,9 @@ Vue.use(Loading.directive)
 Vue.prototype.$loading = Loading.service
 Vue.prototype.$message = Message
 Vue.prototype.$confirm = MessageBox.confirm
+Vue.prototype.setToken = (token) => {
+  Vue.prototype.accessToken = token
+}
 
 Vue.prototype.errHandle = (err, msg = '') => {
   console.log(err)

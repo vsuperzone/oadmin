@@ -27,9 +27,9 @@
       <i class="el-icon-setting"></i>
       <span slot="title">会员管理</span>
     </el-menu-item>
-    <el-menu-item index="4" :route="{name: 'user'}">
+    <el-menu-item index="4" :route="{name: 'user-examine'}">
       <i class="el-icon-setting"></i>
-      <span slot="title">系统设置</span>
+      <span slot="title">会员审核</span>
     </el-menu-item>
   </el-menu>
 </template>
@@ -73,6 +73,7 @@ export default {
   background: #e1edfa;
   color: #464646;
   border-left: 3px solid #008afe;
+  padding-left: 17px !important;
 }
 
 .el-menu-item:focus, .el-menu-item:hover {

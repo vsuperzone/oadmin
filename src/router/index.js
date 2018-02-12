@@ -5,7 +5,8 @@ import Login from '@/components/Login'
 import articleList from '@/components/article/List'
 import articleAdd from '@/components/article/Add'
 import articleEdit from '@/components/article/Edit'
-import user from '@/components/User'
+import user from '@/components/user/Index'
+import userExamine from '@/components/user/Examine'
 
 Vue.use(Router)
 
@@ -68,6 +69,16 @@ const router = new Router({
           components: {
             main: user
           }
+        },
+        {
+          path: 'user/examine',
+          name: 'user-examine',
+          meta: {
+            requireAuth: true
+          },
+          components: {
+            main: userExamine
+          }
         }
       ]
     },
@@ -82,17 +93,7 @@ const router = new Router({
 var accessToken = window.localStorage.getItem('accessToken')
 Vue.prototype.accessToken = accessToken
 
-// if (window.localStorage.getItem('token')) {
-//   store.dispatch('login', window.localStorage.getItem('token'))
-// }
-
 router.beforeEach((to, from, next) => {
-  // 登录后禁止访问
-  if (to.meta.cannotlogin) {
-    if (accessToken) {
-      next('/')
-    }
-  }
   if (to.meta.requireAuth) { // 判断该路由是否需要登录权限
     if (accessToken) { // 通过vuex state获取当前的token是否存在
       next()
