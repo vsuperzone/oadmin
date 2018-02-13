@@ -34,7 +34,7 @@ export default {
         'client_secret': process.env.CLIENT_SECRET,
         'username': this.username,
         'password': this.password,
-        'scope': '*'
+        'scope': 'admin'
       }
       this.axios.post('/server/oauth/token', post)
         .then(res => {

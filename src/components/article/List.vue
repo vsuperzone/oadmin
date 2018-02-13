@@ -80,6 +80,19 @@
             <span>{{ scope.row.title }}</span>
         </template>
       </el-table-column>
+
+      <el-table-column label="总阅读数" width="100">
+        <template slot-scope="scope">
+            <p style="text-align: center">{{ scope.row.view }}</p>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="高级会员阅读" width="120">
+        <template slot-scope="scope">
+            <p style="text-align: center">{{ scope.row.gview }}</p>
+        </template>
+      </el-table-column>
+
       <el-table-column label="更新时间" width="180">
         <template slot-scope="scope">
             <span>{{ scope.row.updated_at }}</span>
@@ -134,7 +147,10 @@ export default {
     }
   },
   created: function () {
-    this.axios.get('/server/api/admin/article')
+    var params = {
+      params: { page: this.$route.params.page }
+    }
+    this.axios.get('/server/api/admin/article', params)
       .then((res) => {
         this.data = res.data.data
       })
@@ -142,19 +158,6 @@ export default {
         this.errHandle(err, '数据获取失败，请刷新重试')
       })
   },
-  // beforeRouteUpdate: function () {
-  //   // console.log(this.$route.params)
-  //   const params = this.$route.params
-  //   console.log(params)
-  //   // this.axios.get('/server/api/admin/article/list', params)
-  //   //   .then((res) => {
-  //   //     // console.log(res.data.data)
-  //   //     // this.data.article = res.data.data
-  //   //   })
-  //   //   .catch((err) => {
-  //   //     this.errHandle(err, '数据获取失败，请刷新重试')
-  //   //   })
-  // },
   watch: {
     '$route': function (to) {
       const page = to.params.page
@@ -163,7 +166,6 @@ export default {
       }
       this.axios.get('/server/api/admin/article/list', params)
         .then((res) => {
-          // console.log(res.data.data)
           this.data.article = res.data.data
         })
         .catch((err) => {
@@ -172,6 +174,18 @@ export default {
     }
   },
   methods: {
+    article_get: function () {
+      var params = {
+        params: { page: this.$route.params.page }
+      }
+      this.axios.get('/server/api/admin/article/list', params)
+        .then((res) => {
+          this.data.article = res.data.data
+        })
+        .catch((err) => {
+          this.errHandle(err, '数据获取失败，请刷新重试')
+        })
+    },
     page_to: function (page) {
       this.$router.push({
         name: 'article-page',
@@ -191,6 +205,7 @@ export default {
         this.axios.get('/server/api/admin/article/delete/' + d.id)
           .then((res) => {
             this.$message.success('删除成功')
+            this.article_get()
           })
           .catch((err) => {
             this.errHandle(err)
@@ -224,9 +239,13 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {
-        this.cate_del(d.id)
       })
+        .then(() => {
+          this.cate_del(d.id)
+        })
+        .catch((err) => {
+          this.errHandle(err)
+        })
     },
     cate_del: function (id) {
       this.axios.get('/server/api/admin/category/delete/' + id)

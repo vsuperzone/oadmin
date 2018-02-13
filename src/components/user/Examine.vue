@@ -114,7 +114,7 @@
           <span>{{ scope.row.tel }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="身份证号" width="160">
+      <el-table-column label="身份证号" width="170">
         <template slot-scope="scope">
           <span>{{ scope.row.certnumber }}</span>
         </template>

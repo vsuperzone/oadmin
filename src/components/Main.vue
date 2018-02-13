@@ -6,7 +6,7 @@
           <o-menu></o-menu>
         </el-aside>
         <el-container>
-          <el-header>Header</el-header>
+          <el-header>Admin</el-header>
           <el-main>
             <router-view name="main"></router-view>
           </el-main>
