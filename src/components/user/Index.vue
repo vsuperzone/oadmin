@@ -6,7 +6,7 @@
       <el-button type="primary" class="item" @click="groupDialog = true" size="small">会员组</el-button>
 
       <!-- 地区筛选 -->
-      <el-select v-model="adressFilter.province" @change="province_select" class="item" placeholder="请选择" size="small">
+      <el-select v-model="adressFilter.province" @change="province_select" class="item" placeholder="请选择" size="small" clearable>
         <el-option
           v-for="item in addressData.province"
           :key="item.value"

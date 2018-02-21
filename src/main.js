@@ -38,6 +38,15 @@ import 'element-ui/lib/theme-chalk/index.css'
 import 'vue-awesome/icons'
 import Icon from 'vue-awesome/components/Icon'
 
+import ECharts from 'vue-echarts/components/ECharts.vue'
+
+// 手动引入 ECharts 各模块来减小打包体积
+import 'echarts/lib/chart/bar'
+import 'echarts/lib/component/tooltip'
+
+// 注册组件后即可使用
+Vue.component('chart', ECharts)
+
 Vue.prototype.axios = axios
 
 Vue.component('icon', Icon)

@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Main from '@/components/Main'
 import Login from '@/components/Login'
+import index from '@/components/index'
 import articleList from '@/components/article/List'
 import articleAdd from '@/components/article/Add'
 import articleEdit from '@/components/article/Edit'
@@ -15,11 +16,23 @@ const router = new Router({
     {
       path: '/',
       name: 'home',
-      component: Main,
+      components: {
+        default: Main
+      },
       meta: {
         requireAuth: true
       },
       children: [
+        {
+          path: '/',
+          name: 'article-list',
+          meta: {
+            requireAuth: true
+          },
+          components: {
+            main: index
+          }
+        },
         {
           path: 'article',
           name: 'article-list',
